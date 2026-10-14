@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kviz: agent ili ne? · AI Sprint</title>
+<meta name="description" content="Interaktivni kviz AI Sprint — Represent Academy: da li je u pitanju AI agent ili samo automatizacija?">
+<meta name="theme-color" content="#0B2E37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F5F8; --card:#FFFFFF; --ink:#0F2233; --body:#3F4D5C; --muted:#66727F;
+    --line:#D5DEE6; --teal:#0E8A8A; --teal-d:#0B7C78; --teal-tint:#E3F3F1;
+    --coral:#E4572E; --coral-d:#C2410C; --coral-tint:#FFEFE9;
+    --dark:#06222B; --dark2:#0B3743; --ok:#0E8A8A; --no:#D9481F;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg); color:var(--body); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,.num,.btn{font-family:Poppins,Inter,system-ui,sans-serif}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 32px;min-height:100%;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .pill{font-size:12px;font-weight:600;color:var(--teal-d);background:var(--teal-tint);padding:6px 12px;border-radius:999px}
+  .progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:22px}
+  .progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),#22B3A6);transition:width .35s ease}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;box-shadow:0 6px 24px rgba(15,34,51,.06)}
+  .label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-d);margin-bottom:8px}
+  h1{color:var(--ink);font-size:28px;line-height:1.2;margin-bottom:10px}
+  h2{color:var(--ink);font-size:22px;line-height:1.25;margin-bottom:12px}
+  p.lead{font-size:16px;color:var(--body)}
+  .scenario{font-size:17px;color:var(--ink);margin-top:4px}
+  .q{margin:22px 2px 12px;font-weight:600;color:var(--ink);font-size:16px}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{appearance:none;border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:17px;font-weight:600;
+       padding:16px 12px;border-radius:14px;cursor:pointer;min-height:58px;transition:transform .08s ease,border-color .2s,background .2s}
+  .btn:active{transform:scale(.98)}
+  .btn:focus-visible{outline:3px solid #22B3A6;outline-offset:2px}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;width:100%}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink);width:100%}
+  .btn[disabled]{cursor:default}
+  .btn.right{border-color:var(--ok);background:var(--teal-tint);color:var(--teal-d)}
+  .btn.wrong{border-color:var(--no);background:var(--coral-tint);color:var(--coral-d)}
+  .btn.dim{opacity:.45}
+  .reveal{margin-top:18px;border-radius:14px;padding:16px;display:none}
+  .reveal.show{display:block;animation:in .3s ease}
+  .reveal.ok{background:var(--teal-tint);border:1px solid #A9DCD6}
+  .reveal.bad{background:var(--coral-tint);border:1px solid #F5BBA8}
+  .verdict{font-family:Poppins,sans-serif;font-weight:700;font-size:17px;margin-bottom:4px}
+  .reveal.ok .verdict{color:var(--teal-d)} .reveal.bad .verdict{color:var(--coral-d)}
+  .type{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:#fff;
+        border:1px solid var(--line);color:var(--ink);padding:4px 10px;border-radius:999px;margin:4px 0 8px}
+  .reveal p{color:var(--ink);font-size:15px}
+  .next{margin-top:16px;display:none}
+  .next.show{display:block}
+  .score{font-family:Poppins,sans-serif;font-size:56px;font-weight:700;color:var(--teal);line-height:1}
+  .score small{font-size:22px;color:var(--muted)}
+  ul.sum{list-style:none;margin:18px 0 6px;display:grid;gap:10px}
+  ul.sum li{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--ink)}
+  .dot{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px}
+  .dot.y{background:var(--teal)} .dot.n{background:var(--coral)}
+  .rule{margin-top:18px;background:var(--dark);color:#F3FAFA;border-radius:14px;padding:16px 18px;font-weight:600}
+  .rule span{color:#5EEAD4}
+  .stack{display:grid;gap:10px;margin-top:18px}
+  footer{margin-top:auto;padding-top:22px;font-size:12px;color:var(--muted);text-align:center}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* Projector / QR view */
+  body.present{background:radial-gradient(1200px 700px at 85% 10%, rgba(20,184,166,.35), transparent 60%),
+               linear-gradient(135deg,var(--dark),var(--dark2));color:#D3E6E7}
+  .present .wrap{max-width:1100px;justify-content:center}
+  .present header{display:none}
+  .qrview{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .qrview h1{color:#F3FAFA;font-size:56px}
+  .qrview p{font-size:22px;color:#A7C4C7}
+  .qrview .url{margin-top:18px;font-size:18px;color:#5EEAD4;word-break:break-all}
+  .qrbox{background:#fff;border-radius:24px;padding:24px;display:grid;place-items:center}
+  #qr img,#qr canvas{width:100%!important;height:auto!important;max-width:420px}
+  @media (max-width:760px){.qrview{grid-template-columns:1fr}.qrview h1{font-size:36px}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="brand">AI Sprint · Represent Academy</span>
+    <span class="pill" id="step">Start</span>
+  </header>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+  <main id="app" aria-live="polite"></main>
+  <footer>Odgovori se ne čuvaju i ne šalju — kviz radi samo u vašem telefonu.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const Q = [
+  {
+    title: "HR bot u Slack-u",
+    text: "Na „Koliko mi je ostalo odmora?“ vrati broj iz baze. Na „Odobri mi odmor“ odgovori: „Pišite šefu.“",
+    agent: false,
+    type: "Workflow (pseudo-agent)",
+    why: "Radi po unapred napisanim pravilima „ako-onda“. Ne bira sledeći korak i staje čim zahtev izađe iz šablona."
+  },
+  {
+    title: "Popravka greške u kodu",
+    text: "Pročita kod, izmeni ga, pokrene test, vidi novu grešku, ispravi i nju — i javi kada test prođe.",
+    agent: true,
+    type: "Agent",
+    why: "Ima petlju odluči → izvrši → proveri: sam bira sledeći korak i alat na osnovu rezultata testa i ispravlja se bez novog prompta."
+  },
+  {
+    title: "„AI“ korisnička podrška",
+    text: "Kupac misli da piše robotu, a odgovore iza kulisa kuca operater uz pomoć AI predloga.",
+    agent: false,
+    type: "„Wizard of Oz“ · AI washing",
+    why: "Autonomiju simuliraju ljudi iza kulisa. Pored pogrešnog utiska, otvara se i pitanje ko obrađuje podatke kupca."
+  },
+  {
+    title: "Jutarnji izveštaj",
+    text: "Svakog dana u 8:00 isti izveštaj iz CRM-a stigne mejlom — uvek isti koraci, isti format.",
+    agent: false,
+    type: "Automatizacija",
+    why: "Korisna i pouzdana, ali koraci su uvek isti i niko ne odlučuje o sledećem koraku. Workflow nije mana — samo nije agent."
+  }
+];
+
+const app = document.getElementById('app');
+const bar = document.getElementById('bar');
+const step = document.getElementById('step');
+let i = 0, answers = [];
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function start(){
+  i = 0; answers = [];
+  bar.style.width = '0%'; step.textContent = 'Start';
+  app.innerHTML = `
+    <section class="card">
+      <div class="label">Kviz · 4 scenarija</div>
+      <h1>Agent ili ne?</h1>
+      <p class="lead">Za svaki scenario izaberite da li je u pitanju AI agent ili ne. Odmah posle odgovora vidite objašnjenje.</p>
+      <div class="rule">Kriterijum: <span>ko bira sledeći korak</span> — sistem na osnovu rezultata ili unapred napisan scenario?</div>
+      <div class="stack"><button class="btn primary" id="go">Počni kviz</button></div>
+    </section>`;
+  document.getElementById('go').onclick = () => show();
+}
+
+function show(){
+  const q = Q[i];
+  step.textContent = `Scenario ${i+1} / ${Q.length}`;
+  bar.style.width = `${(i/Q.length)*100}%`;
+  app.innerHTML = `
+    <section class="card">
+      <div class="label">Scenario ${i+1}</div>
+      <h2>${esc(q.title)}</h2>
+      <p class="scenario">${esc(q.text)}</p>
+      <div class="q">Da li je ovo AI agent?</div>
+      <div class="choices">
+        <button class="btn" data-v="1">Agent</button>
+        <button class="btn" data-v="0">Nije agent</button>
+      </div>
+      <div class="reveal" id="rev"></div>
+      <div class="next" id="nx"><button class="btn primary" id="nb">${i < Q.length-1 ? 'Sledeći scenario' : 'Pogledaj rezultat'}</button></div>
+    </section>`;
+  app.querySelectorAll('.choices .btn').forEach(b => b.onclick = () => answer(b.dataset.v === '1', b));
+  app.querySelector('.choices .btn').focus({preventScroll:true});
+}
+
+function answer(saidAgent, btn){
+  const q = Q[i], ok = saidAgent === q.agent;
+  answers[i] = ok;
+  app.querySelectorAll('.choices .btn').forEach(b => {
+    b.disabled = true;
+    const isAgentBtn = b.dataset.v === '1';
+    if (isAgentBtn === q.agent) b.classList.add('right');
+    else if (b === btn) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  const rev = document.getElementById('rev');
+  rev.className = 'reveal show ' + (ok ? 'ok' : 'bad');
+  rev.innerHTML = `
+    <div class="verdict">${ok ? 'Tačno!' : 'Nije tačno.'} ${q.agent ? 'Ovo jeste agent.' : 'Ovo nije agent.'}</div>
+    <span class="type">${esc(q.type)}</span>
+    <p>${esc(q.why)}</p>`;
+  bar.style.width = `${((i+1)/Q.length)*100}%`;
+  document.getElementById('nx').classList.add('show');
+  const nb = document.getElementById('nb');
+  nb.onclick = () => { i++; i < Q.length ? show() : result(); window.scrollTo({top:0,behavior:'smooth'}); };
+  rev.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function result(){
+  const n = answers.filter(Boolean).length;
+  step.textContent = 'Rezultat';
+  bar.style.width = '100%';
+  const msg = n === 4 ? 'Odlično — prepoznajete razliku i ne nasedate na AI washing.'
+            : n >= 2 ? 'Dobro! Razlika je suptilna — upravo zato je važna pri izboru alata.'
+            : 'Ništa strašno — i dobavljači često mešaju ova dva pojma. Zato pitamo: ko bira sledeći korak?';
+  app.innerHTML = `
+    <section class="card">
+      <div class="label">Vaš rezultat</div>
+      <div class="score">${n}<small> / ${Q.length}</small></div>
+      <p class="lead" style="margin-top:10px">${msg}</p>
+      <ul class="sum">
+        ${Q.map((q,k)=>`<li><span class="dot ${answers[k]?'y':'n'}">${answers[k]?'✓':'✕'}</span>
+          <span><strong>${k+1}. ${esc(q.title)}</strong> — ${esc(q.type)}</span></li>`).join('')}
+      </ul>
+      <div class="rule">Agent nije oznaka na kutiji, već ponašanje: <span>sam bira sledeći korak</span> i proverava rezultat — u okviru dozvola koje mu je dao čovek.</div>
+      <div class="stack"><button class="btn ghost" id="again">Pokušaj ponovo</button></div>
+    </section>`;
+  document.getElementById('again').onclick = start;
+}
+
+/* Prikaz za projektor: dodajte ?qr na kraj adrese */
+function presenter(){
+  document.body.classList.add('present');
+  const url = location.href.split('?')[0].split('#')[0];
+  document.querySelector('footer').style.display = 'none';
+  document.querySelector('.progress').style.display = 'none';
+  app.innerHTML = `
+    <section class="qrview">
+      <div>
+        <h1>Kviz: agent ili ne?</h1>
+        <p>Skenirajte QR kod telefonom, odgovorite na četiri scenarija i odmah vidite objašnjenje.</p>
+        <div class="url">${esc(url.replace(/^https?:\/\//,''))}</div>
+      </div>
+      <div class="qrbox"><div id="qr"></div></div>
+    </section>`;
+  if (window.QRCode) new QRCode(document.getElementById('qr'), {text:url, width:420, height:420, colorDark:'#0F2233', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M});
+  else document.getElementById('qr').textContent = url;
+}
+
+if (new URLSearchParams(location.search).has('qr')) presenter(); else start();
+</script>
+</body>
+</html>
